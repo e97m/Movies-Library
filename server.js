@@ -9,7 +9,7 @@ const movieData = require('./Movie Data/data.json');
 app.get('/', movieDataHandler);
 app.get('/favorite', favorateHandler);
 app.get('*', notFoundHndler);
-app.get('error', serverErrorHndler);    //not sure about this
+app.get(serverErrorHndler);
 
 
 //construtor
@@ -39,4 +39,6 @@ function serverErrorHndler(req, res) {
     return res.status(500).send("Sorry, something went wrong");
 }
 
-app.listen(8080, ()=>{})
+app.listen(8080, ()=>{
+    console.log('listening to port 8080')
+})
