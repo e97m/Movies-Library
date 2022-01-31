@@ -35,8 +35,12 @@ function notFoundHndler(req, res) {
     return res.status(404).send("Not Found!!");
 }
 
-function serverErrorHndler(req, res) {
-    return res.status(500).send("Sorry, something went wrong");
+function serverErrorHndler(error, req, res) {
+    let err = {
+        status : 500,
+        message : "Sorry, something went wrong"
+    }
+    return res.status(500).send(err);
 }
 
 app.listen(8080, ()=>{
