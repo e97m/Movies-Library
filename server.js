@@ -12,6 +12,7 @@ const client = new pg.Client(process.env.DATABASE_URL);
 const PORT = process.env.PORT;
 const app = express();
 app.use(cors());
+app.use(express.json())
 
 //creat websit pages
 app.get('/', movieDataHandler);
@@ -149,7 +150,7 @@ function tvDataHandler(req, res) {
 //add movies page
 function addMovieHandler (req,res){
   let sql = `INSERT INTO moviesdb(title, release_date, overview) VALUES ($1,$2,$3) RETURNING *;`
-  let values=[req.body.title, req.body.release_date, req.body.overview];
+  let values=[req.body.title || '', req.body.release_date || '', req.body.overview || ''];
   client.query(sql,values).then(data =>{
       res.status(200).json(data.rows);
   }).catch(error=>{
