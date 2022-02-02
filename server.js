@@ -21,8 +21,11 @@ app.get('/trending', trendingHandler)
 app.get('/search', searchHandler)
 app.get('/popular', popularHandler)
 app.get('/tv', tvDataHandler)
-app.get('/getMovie', getMoviedHandler)
 app.post('/addMovie', addMovieHandler)
+app.get('/getMovie', getMoviedHandler)
+app.get('/getMovie/:id', getMovieByIdHandler)
+app.put('/updateMovie/:id/', updateMovieHandler)
+app.delete('/deleteMovie/:id', deletMovieHandler)
 app.use('*', notFoundHndler);
 app.use(serverErrorHndler);
 
@@ -147,24 +150,58 @@ function tvDataHandler(req, res) {
         .catch((err) => { serverErrorHndler(err, req, res) });
 }
 
-//add movies page
-function addMovieHandler (req,res){
-  let sql = `INSERT INTO moviesdb(title, release_date, overview) VALUES ($1,$2,$3) RETURNING *;`
-  let values=[req.body.title || '', req.body.release_date || '', req.body.overview || ''];
-  client.query(sql,values).then(data =>{
-      res.status(200).json(data.rows);
-  }).catch(error=>{
-    serverErrorHndler(error,req,res)
-  });
+//add movies request
+function addMovieHandler(req, res) {
+    let sql = `INSERT INTO moviesdb(title, release_date, overview) VALUES ($1,$2,$3) RETURNING *;`
+    let values = [req.body.title || req.body.original_title || '', req.body.release_date || '', req.body.overview || ''];
+    client.query(sql, values).then(data => {
+        res.status(201).json(data.rows);
+    }).catch(error => {
+        serverErrorHndler(error, req, res)
+    });
 }
 
 //get movies page
-function getMoviedHandler (req,res){
+function getMoviedHandler(req, res) {
     let sql = `SELECT * FROM moviesdb;`;
-    client.query(sql).then(data=>{
-       res.status(200).json(data.rows);
-    }).catch(error=>{
-        serverErrorHndler(error,req,res)
+    client.query(sql).then(data => {
+        res.status(200).json(data.rows);
+    }).catch(error => {
+        serverErrorHndler(error, req, res)
+    });
+}
+
+//get movi by id request
+function getMovieByIdHandler(req, res) {
+    let id = req.params.id
+    // console.log(id)
+    let sql = `SELECT * FROM moviesdb WHERE id= ${id};`;
+    client.query(sql).then(data => {
+        res.status(200).json(data.rows)
+    }).catch(error => {
+        serverErrorHndler(error, req, res)
+    });
+}
+
+//update request
+function updateMovieHandler(req, res) {
+    const sql = `UPDATE moviesdb SET title = $1, release_date = $2, overview = $3  WHERE id=$4 RETURNING *;`;
+    let values = [req.body.title || req.body.original_title, req.body.release_date, req.body.overview, req.params.id];
+    client.query(sql, values).then(data => {
+        res.status(200).json(data.rows);
+    }).catch(error => {
+        serverErrorHndler(error, req, res)
+    });
+}
+
+//delete request
+function deletMovieHandler(req, res) {
+    const id = req.params.id;
+    const sql = `DELETE FROM moviesdb WHERE id=${id};`
+    client.query(sql).then(() => {
+        res.status(200).send("The movie has been deleted");
+    }).catch(error => {
+        serverErrorHndler(error, req, res)
     });
 }
 
