@@ -8,7 +8,10 @@ const axios = require('axios');
 const pg = require('pg');
 
 //declaring the app, the port, and the database
-const client = new pg.Client(process.env.DATABASE_URL);
+const client = new pg.Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+})   // const client = new pg.Client(process.env.DATABASE_URL);
 const PORT = process.env.PORT;
 const app = express();
 app.use(cors());
