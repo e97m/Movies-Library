@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS moviesdb;
+DROP TABLE IF EXISTS moviestable;
 
-CREATE TABLE IF NOT EXISTS moviesdb (
+CREATE TABLE IF NOT EXISTS moviestable (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255),
     release_date VARCHAR(255),

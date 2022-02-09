@@ -1,21 +1,21 @@
 'use strict';
 
 //require packages
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const axios = require('axios');
-const pg = require('pg');
+require('dotenv').config();         // for separate the important variables
+const express = require('express'); // server environment
+const cors = require('cors');       // connect frontend with backend
+const axios = require('axios');     // to import data from 3rd party API
+const pg = require('pg');           // to use postgrss SQL database
 
 //declaring the app, the port, and the database
-const client = new pg.Client({
+const client = new pg.Client({                  // for localhost:::: const client = new pg.Client(process.env.DATABASE_URL);
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
-})   // const client = new pg.Client(process.env.DATABASE_URL);
+})    
 const PORT = process.env.PORT;
-const app = express();
-app.use(cors());
-app.use(express.json())
+const app = express();   
+app.use(cors());         
+app.use(express.json())  // to convert data(fetched data for example) from JSON to normal
 
 //creat websit pages
 app.get('/', movieDataHandler);
@@ -86,7 +86,7 @@ function trendingHandler(req, res) {
     let listOfMovies = [];
     let url = `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.APIKEY}&language=en-US`
     axios.get(url)
-        .then(
+        .then(       // then is a promiss that stop the inner finction untill the inner statements finished, but the compiler will compleat after the function untill it became ready
             (result) => {
                 result.data.results.forEach(trendingMovies => {
                     let myMovie = new TrendMovies(trendingMovies.id, trendingMovies.title, trendingMovies.release_date, trendingMovies.poster_path, trendingMovies.overview)
@@ -98,6 +98,20 @@ function trendingHandler(req, res) {
         )
         .catch((err) => { serverErrorHndler(err, req, res) });
 }
+//onther way to promiss: asynce await: it stops the program untill thr inner function done
+// try {
+//    async function trendingHandler(req, res) {
+//    let result = await result.data.results.forEach(trendingMovies => {
+//                        let myMovie = new TrendMovies(trendingMovies.id, trendingMovies.title, trendingMovies.release_date, trendingMovies.poster_path, trendingMovies.overview)
+//                        listOfMovies.push(myMovie)
+//                    }
+//    res.status(200).json(listOfMovies);
+//    }
+// }
+// catch(error){
+//    serverErrorHndler(err, req, res)
+//}
+
 
 //search page
 function searchHandler(req, res) {
@@ -155,7 +169,7 @@ function tvDataHandler(req, res) {
 
 //add movies request
 function addMovieHandler(req, res) {
-    let sql = `INSERT INTO moviesdb(title, release_date, overview) VALUES ($1,$2,$3) RETURNING *;`
+    let sql = `INSERT INTO moviestable(title, release_date, overview) VALUES ($1,$2,$3) RETURNING *;`
     let values = [req.body.title || req.body.original_title || '', req.body.release_date || '', req.body.overview || ''];
     client.query(sql, values).then(data => {
         res.status(201).json(data.rows);
@@ -166,7 +180,7 @@ function addMovieHandler(req, res) {
 
 //get movies page
 function getMoviedHandler(req, res) {
-    let sql = `SELECT * FROM moviesdb;`;
+    let sql = `SELECT * FROM moviestable;`;
     client.query(sql).then(data => {
         res.status(200).json(data.rows);
     }).catch(error => {
@@ -178,7 +192,7 @@ function getMoviedHandler(req, res) {
 function getMovieByIdHandler(req, res) {
     let id = req.params.id
     // console.log(id)
-    let sql = `SELECT * FROM moviesdb WHERE id= ${id};`;
+    let sql = `SELECT * FROM moviestable WHERE id= ${id};`;
     client.query(sql).then(data => {
         res.status(200).json(data.rows)
     }).catch(error => {
@@ -188,7 +202,7 @@ function getMovieByIdHandler(req, res) {
 
 //update request
 function updateMovieHandler(req, res) {
-    const sql = `UPDATE moviesdb SET title = $1, release_date = $2, overview = $3  WHERE id=$4 RETURNING *;`;
+    const sql = `UPDATE moviestable SET title = $1, release_date = $2, overview = $3  WHERE id=$4 RETURNING *;`;
     let values = [req.body.title || req.body.original_title, req.body.release_date, req.body.overview, req.params.id];
     client.query(sql, values).then(data => {
         res.status(200).json(data.rows);
@@ -200,7 +214,7 @@ function updateMovieHandler(req, res) {
 //delete request
 function deletMovieHandler(req, res) {
     const id = req.params.id;
-    const sql = `DELETE FROM moviesdb WHERE id=${id};`
+    const sql = `DELETE FROM moviestable WHERE id=${id};`
     client.query(sql).then(() => {
         res.status(200).send("The movie has been deleted");
     }).catch(error => {
