@@ -27,8 +27,8 @@ To start this app you must:
     6. For tv page enter http://localhost:8080/tv
     7. For get movies page enter http://localhost:8080/getMovies
     8. For requests from database:
-        - To add movie http://localhost:8080/addMovies
-        - To get moive by id http://localhost:8080/getMovies/:id
+        - To add movie http://localhost:8080/addMovie
+        - To get moive by id http://localhost:8080/getMovie/:id
         - To update by id http://localhost:8080/updateMovie/:id
         - To delte by id http://localhost:8080/deleteMovie/:id
 
