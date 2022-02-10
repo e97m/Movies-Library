@@ -86,19 +86,17 @@ function trendingHandler(req, res) {
     let listOfMovies = [];
     let url = `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.APIKEY}&language=en-US`
     axios.get(url)
-        .then(       // then is a promiss that stop the inner finction untill the inner statements finished, but the compiler will compleat after the function untill it became ready
+        .then(       // then is a promise that stop the inner finction untill the inner statements finished, but the compiler will compleat after the function untill it became ready
             (result) => {
                 result.data.results.forEach(trendingMovies => {
                     let myMovie = new TrendMovies(trendingMovies.id, trendingMovies.title, trendingMovies.release_date, trendingMovies.poster_path, trendingMovies.overview)
                     listOfMovies.push(myMovie)
-                }
-                )
+                })
                 res.status(200).json(listOfMovies);
-            }
-        )
+            })
         .catch((err) => { serverErrorHndler(err, req, res) });
 }
-//onther way to promiss: asynce await: it stops the program untill thr inner function done
+//onther way to promise: asynce await: it stops the program untill thr inner function done
 // try {
 //    async function trendingHandler(req, res) {
 //    let result = await result.data.results.forEach(trendingMovies => {
@@ -123,11 +121,9 @@ function searchHandler(req, res) {
                 result.data.results.forEach(searchMovies => {
                     let myMovie = new TrendMovies(searchMovies.id, searchMovies.title, searchMovies.release_date, searchMovies.poster_path, searchMovies.overview)
                     listOfMovies.push(myMovie)
-                }
-                )
+                })
                 res.status(200).json(listOfMovies);
-            }
-        )
+            })
         .catch((err) => { serverErrorHndler(err, req, res) });
 }
 
@@ -141,11 +137,9 @@ function popularHandler(req, res) {
                 result.data.results.forEach(popularMovies => {
                     let myMovie = new PopularMovies(popularMovies.id, popularMovies.original_title, popularMovies.release_date, popularMovies.poster_path, popularMovies.overview)
                     listOfMovies.push(myMovie)
-                }
-                )
+                })
                 res.status(200).json(listOfMovies);
-            }
-        )
+            })
         .catch((err) => { serverErrorHndler(err, req, res) });
 }
 
@@ -159,11 +153,9 @@ function tvDataHandler(req, res) {
                 result.data.results.forEach(tvMovies => {
                     let myMovie = new TvMovies(tvMovies.id, tvMovies.name, tvMovies.first_air_date, tvMovies.poster_path, tvMovies.overview)
                     listOfMovies.push(myMovie)
-                }
-                )
+                })
                 res.status(200).json(listOfMovies);
-            }
-        )
+            })
         .catch((err) => { serverErrorHndler(err, req, res) });
 }
 
@@ -171,8 +163,11 @@ function tvDataHandler(req, res) {
 function addMovieHandler(req, res) {
     let sql = `INSERT INTO moviestable(title, release_date, overview) VALUES ($1,$2,$3) RETURNING *;`
     let values = [req.body.title || req.body.original_title || '', req.body.release_date || '', req.body.overview || ''];
+        // or 
+        // let {title, original_title, release_date, overview} = req.body;  ***destructuring***
+        // let values = [title || original_title || '', release_date || '', overview || ''];
     client.query(sql, values).then(data => {
-        res.status(201).json(data.rows);
+        res.status(201).json(data.rows);  // or res.status(201).json(data.rows[0])
     }).catch(error => {
         serverErrorHndler(error, req, res)
     });
@@ -190,9 +185,8 @@ function getMoviedHandler(req, res) {
 
 //get movi by id request
 function getMovieByIdHandler(req, res) {
-    let id = req.params.id
-    // console.log(id)
-    let sql = `SELECT * FROM moviestable WHERE id= ${id};`;
+    let movieid = req.params.id
+    let sql = `SELECT * FROM moviestable WHERE id= ${movieid};`;
     client.query(sql).then(data => {
         res.status(200).json(data.rows)
     }).catch(error => {
@@ -200,10 +194,13 @@ function getMovieByIdHandler(req, res) {
     });
 }
 
-//update request
+//update all data by id request 
 function updateMovieHandler(req, res) {
     const sql = `UPDATE moviestable SET title = $1, release_date = $2, overview = $3  WHERE id=$4 RETURNING *;`;
-    let values = [req.body.title || req.body.original_title, req.body.release_date, req.body.overview, req.params.id];
+    let values = [req.body.title || req.body.original_title, req.body.release_date, req.body.overview, req.params.id]; // here you can control what parameters to update
+        //or
+        // let b = req.body
+        // let values = [b.title || b.original_title, b.release_date, b.overview, req.params.id];
     client.query(sql, values).then(data => {
         res.status(200).json(data.rows);
     }).catch(error => {
@@ -211,12 +208,12 @@ function updateMovieHandler(req, res) {
     });
 }
 
-//delete request
+//delete by id request
 function deletMovieHandler(req, res) {
-    const id = req.params.id;
-    const sql = `DELETE FROM moviestable WHERE id=${id};`
+    const movieid = req.params.id;
+    const sql = `DELETE FROM moviestable WHERE id=${movieid};`
     client.query(sql).then(() => {
-        res.status(200).send("The movie has been deleted");
+        res.status(204).send("The movie has been deleted");
     }).catch(error => {
         serverErrorHndler(error, req, res)
     });
