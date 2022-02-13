@@ -7,11 +7,19 @@ const cors = require('cors');       // connect frontend with backend
 const axios = require('axios');     // to import data from 3rd party API
 const pg = require('pg');           // to use postgrss SQL database
 
-//declaring the app, the port, and the database
+//importing the database
 const client = new pg.Client({                  // for localhost:::: const client = new pg.Client(process.env.DATABASE_URL);
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
+        //some properties you can add instid of URL :
+        // user: 'dbuser',
+        // host: 'database.server.com',
+        // database: 'mydb',
+        // password: 'secretpassword',
+        // port: 3211,  *** usually 5432***
 })    
+
+//declaring the app and the port
 const PORT = process.env.PORT;
 const app = express();   
 app.use(cors());         
@@ -202,7 +210,7 @@ function updateMovieHandler(req, res) {
         // let b = req.body
         // let values = [b.title || b.original_title, b.release_date, b.overview, req.params.id];
     client.query(sql, values).then(data => {
-        res.status(200).json(data.rows);
+        res.status(200).json(data.rows);  // or res.status(204).json(data.rows);  becoause we dont want to send any thing to body
     }).catch(error => {
         serverErrorHndler(error, req, res)
     });
@@ -213,7 +221,7 @@ function deletMovieHandler(req, res) {
     const movieid = req.params.id;
     const sql = `DELETE FROM moviestable WHERE id=${movieid};`
     client.query(sql).then(() => {
-        res.status(204).send("The movie has been deleted");
+        res.status(200).send("The movie has been deleted");
     }).catch(error => {
         serverErrorHndler(error, req, res)
     });
