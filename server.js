@@ -169,7 +169,7 @@ function tvDataHandler(req, res) {
 
 //add movies request
 function addMovieHandler(req, res) {
-    let sql = `INSERT INTO moviestable(title, release_date, overview) VALUES ($1,$2,$3,$4) RETURNING *;`
+    let sql = `INSERT INTO moviestable(title, release_date, poster_path, overview) VALUES ($1,$2,$3,$4) RETURNING *;`
     let values = [req.body.title || req.body.original_title || '', req.body.release_date || '', req.body.poster_path || '', req.body.overview || ''];
         // or 
         // let {title, original_title, release_date, overview} = req.body;  ***destructuring***
