@@ -7,7 +7,7 @@ const cors = require('cors');       // connect frontend with backend
 const axios = require('axios');     // to import data from 3rd party API
 const pg = require('pg');           // to use postgrss SQL database
 
-//importing the database
+// importing the database
 const client = new pg.Client({                  // for localhost:::: const client = new pg.Client(process.env.DATABASE_URL);
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
